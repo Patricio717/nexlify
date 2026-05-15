@@ -100,7 +100,7 @@
           fbq('track', 'Purchase', { value: amount / 100, currency: 'EUR', event_id: eventId });
 
           setTimeout(() => {
-            window.location.href = '/thank-you?v=' + amount;
+            window.location.href = '/thank-you.html?v=' + amount;
           }, 300);
         }
       } catch (error) {
