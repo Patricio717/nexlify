@@ -9,71 +9,69 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; padding: 40px 20px; }
     .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h1 { margin-bottom: 30px; color: #333; }
+    h1 { margin-bottom: 30px; color: #1F2937; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-    input, #card-element { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; }
-    input:focus, #card-element:focus { outline: none; border-color: #667eea; }
-    #card-element { min-height: 40px; }
-    .price-box { background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-    .price-box p { font-size: 2em; font-weight: bold; color: #667eea; }
-    button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 1.1em; cursor: pointer; margin-top: 20px; transition: background 0.3s; }
-    button:hover { background: #764ba2; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #1F2937; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; }
+    input:focus { outline: none; border-color: #10B981; }
+    #card-element { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; min-height: 44px; }
+    .price-box { background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px solid #10B981; }
+    .price-box .amount { font-size: 2em; font-weight: bold; color: #10B981; }
+    .price-box .label { color: #6B7280; margin-top: 4px; }
+    button { width: 100%; padding: 14px; background: #FBBF24; color: #1F2937; border: none; border-radius: 6px; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background 0.3s; }
+    button:hover { background: #F59E0B; }
     button:disabled { background: #ccc; cursor: not-allowed; }
     .error { color: #e74c3c; margin-top: 10px; font-size: 0.9em; }
-    .loading { display: none; text-align: center; }
-    .loading.active { display: block; }
+    .back { display: block; text-align: center; margin-top: 20px; color: #10B981; text-decoration: none; font-size: 0.9em; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Checkout</h1>
-
     <div class="price-box">
-      <p>€37.00</p>
-      <p style="font-size: 1em; font-weight: normal; color: #666;">Nexlify Digital Product</p>
+      <div class="amount">€37.00</div>
+      <div class="label">Nexlify Digital Product</div>
     </div>
-
     <form id="payment-form">
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
       </div>
-
       <div class="form-group">
-        <label for="card-element">Card Details</label>
+        <label>Card Details</label>
         <div id="card-element"></div>
         <div id="card-errors" class="error"></div>
       </div>
-
       <button type="submit" id="submit-btn">Pay €37.00</button>
-      <div class="loading" id="loading">
-        <p>Processing payment...</p>
-      </div>
     </form>
+    <a href="/index.html" class="back">← Back to home</a>
   </div>
 
   <script src="/tracking.js" defer></script>
   <script src="/posthog-init.js" defer></script>
   <script>
-    const stripe = Stripe(document.currentScript.getAttribute('data-key') || '');
-    const cardElement = stripe.elements().create('card');
+    const stripe = Stripe('pk_test_51TWbPTJOfEdgZVfKcM5CkfN2f8WOZZcSDLuXzhHkyEdzvQ8vmw4PSrPQvWa60fjKHeQjlRHehRdQLwTR120oG4RY00FmhrAl4i');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+      style: {
+        base: { fontSize: '16px', color: '#1F2937', '::placeholder': { color: '#9CA3AF' } }
+      }
+    });
     cardElement.mount('#card-element');
 
     const form = document.getElementById('payment-form');
     const emailInput = document.getElementById('email');
     const submitBtn = document.getElementById('submit-btn');
-    const loading = document.getElementById('loading');
     const cardErrors = document.getElementById('card-errors');
 
-    cardElement.addEventListener('change', (event) => {
-      cardErrors.textContent = event.error ? event.error.message : '';
+    cardElement.addEventListener('change', (e) => {
+      cardErrors.textContent = e.error ? e.error.message : '';
     });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       submitBtn.disabled = true;
-      loading.classList.add('active');
+      submitBtn.textContent = 'Processing...';
 
       try {
         const response = await fetch('/api/create-checkout', {
@@ -82,6 +80,7 @@
           body: JSON.stringify({ email: emailInput.value })
         });
 
+        if (!response.ok) throw new Error('Failed to create payment');
         const { clientSecret, amount } = await response.json();
 
         const result = await stripe.confirmCardPayment(clientSecret, {
@@ -94,30 +93,20 @@
         if (result.error) {
           cardErrors.textContent = result.error.message;
           submitBtn.disabled = false;
-          loading.classList.remove('active');
+          submitBtn.textContent = 'Pay €37.00';
         } else if (result.paymentIntent.status === 'succeeded') {
           const eventId = 'stripe_' + result.paymentIntent.id;
-          fbq('track', 'Purchase', { value: amount / 100, currency: 'EUR', event_id: eventId });
-
-          setTimeout(() => {
-            window.location.href = '/thank-you.html?v=' + amount;
-          }, 300);
+          if (typeof fbq !== 'undefined') {
+            fbq('track', 'Purchase', { value: 37, currency: 'EUR', event_id: eventId });
+          }
+          window.location.href = '/thank-you.html?v=' + amount;
         }
       } catch (error) {
-        cardErrors.textContent = error.message;
+        cardErrors.textContent = 'Payment failed. Please try again.';
         submitBtn.disabled = false;
-        loading.classList.remove('active');
+        submitBtn.textContent = 'Pay €37.00';
       }
     });
-
-    fetch('/api/stripe-key')
-      .then(r => r.json())
-      .then(d => {
-        const stripe = Stripe(d.key);
-        const elements = stripe.elements();
-        const cardElement = elements.create('card');
-        cardElement.mount('#card-element');
-      });
   </script>
 </body>
 </html>
