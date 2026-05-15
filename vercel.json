@@ -2,5 +2,12 @@
   "version": 2,
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": "public",
-  "public": true
+  "public": true,
+  "routes": [
+    { "src": "^/checkout$", "dest": "/checkout.html", "methods": ["GET", "HEAD"] },
+    { "src": "^/thank-you$", "dest": "/thank-you.html", "methods": ["GET", "HEAD"] },
+    { "src": "^/privacy$", "dest": "/privacy.html", "methods": ["GET", "HEAD"] },
+    { "src": "^/terms$", "dest": "/terms.html", "methods": ["GET", "HEAD"] },
+    { "src": "^/refund$", "dest": "/refund.html", "methods": ["GET", "HEAD"] }
+  ]
 }
