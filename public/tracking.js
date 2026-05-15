@@ -35,9 +35,9 @@
   }
 
   // Fire AddToCart on CTA button click
-  const ctaButton = document.querySelector('a.cta, a[href="/checkout"]');
+  const ctaButton = document.querySelector('a.cta');
   if (ctaButton) {
-    ctaButton.addEventListener('click', () => {
+    ctaButton.addEventListener('click', (e) => {
       if (typeof fbq !== 'undefined') {
         fbq('track', 'AddToCart', {
           content_ids: ['nexlify'],
@@ -47,10 +47,7 @@
           currency: 'EUR'
         });
       }
-      // Allow 300ms for event to send
-      setTimeout(() => {
-        window.location.href = '/checkout.html';
-      }, 300);
+      // Let the link navigate normally after tracking
     });
   }
 
