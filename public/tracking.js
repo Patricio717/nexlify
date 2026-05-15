@@ -1,9 +1,6 @@
-// Meta Pixel - will be initialized in HTML with fbq()
-// This script fires tracking events
-
+// Meta Pixel tracking - will be initialized in HTML
 (function() {
   const pageUrl = window.location.pathname;
-  const urlParams = new URLSearchParams(window.location.search);
 
   // Fire PageView
   if (typeof fbq !== 'undefined') {
@@ -16,16 +13,14 @@
     if (pricingSection) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (typeof fbq !== 'undefined') {
-              fbq('track', 'ViewContent', {
-                content_ids: ['nexlify'],
-                content_name: 'Nexlify Product',
-                content_type: 'product',
-                value: 37,
-                currency: 'EUR'
-              });
-            }
+          if (entry.isIntersecting && typeof fbq !== 'undefined') {
+            fbq('track', 'ViewContent', {
+              content_ids: ['nexlify'],
+              content_name: 'Nexlify Product',
+              content_type: 'product',
+              value: 37,
+              currency: 'EUR'
+            });
             observer.unobserve(entry.target);
           }
         });
@@ -34,37 +29,17 @@
     }
   }
 
-  // Fire AddToCart on CTA button click
-  const ctaButton = document.querySelector('a.cta');
-  if (ctaButton) {
-    ctaButton.addEventListener('click', (e) => {
-      if (typeof fbq !== 'undefined') {
-        fbq('track', 'AddToCart', {
-          content_ids: ['nexlify'],
-          content_name: 'Nexlify Product',
-          content_type: 'product',
-          value: 37,
-          currency: 'EUR'
-        });
-      }
-      // Let the link navigate normally after tracking
-    });
-  }
-
   // Fire InitiateCheckout on checkout page
-  if (pageUrl === '/checkout' || pageUrl === '/checkout.html') {
+  if (pageUrl === '/checkout.html' || pageUrl.includes('checkout')) {
     if (typeof fbq !== 'undefined') {
       fbq('track', 'InitiateCheckout', {
-        content_ids: ['nexlify'],
-        content_name: 'Nexlify Product',
-        content_type: 'product',
         value: 37,
         currency: 'EUR'
       });
     }
   }
 
-  // Register PostHog super properties
+  // Register PostHog
   if (typeof posthog !== 'undefined') {
     posthog.register({
       brand: 'nexlify',
