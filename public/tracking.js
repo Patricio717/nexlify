@@ -49,7 +49,7 @@
       }
       // Allow 300ms for event to send
       setTimeout(() => {
-        window.location.href = '/checkout';
+        window.location.href = '/checkout.html';
       }, 300);
     });
   }
