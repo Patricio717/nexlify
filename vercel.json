@@ -4,10 +4,12 @@
   "outputDirectory": "public",
   "public": true,
   "routes": [
-    { "src": "^/checkout$", "dest": "/checkout.html", "methods": ["GET", "HEAD"] },
-    { "src": "^/thank-you$", "dest": "/thank-you.html", "methods": ["GET", "HEAD"] },
-    { "src": "^/privacy$", "dest": "/privacy.html", "methods": ["GET", "HEAD"] },
-    { "src": "^/terms$", "dest": "/terms.html", "methods": ["GET", "HEAD"] },
-    { "src": "^/refund$", "dest": "/refund.html", "methods": ["GET", "HEAD"] }
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/checkout$", "dest": "/checkout.html" },
+    { "src": "^/thank-you$", "dest": "/thank-you.html" },
+    { "src": "^/privacy$", "dest": "/privacy.html" },
+    { "src": "^/terms$", "dest": "/terms.html" },
+    { "src": "^/refund$", "dest": "/refund.html" },
+    { "src": "^/(.*)$", "dest": "/$1" }
   ]
 }
